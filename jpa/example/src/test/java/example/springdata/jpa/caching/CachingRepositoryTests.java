@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,17 +32,18 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Oliver Gierke
  * @author Thomas Darimont
+ * @author Andrea Rizzini
  */
 @RunWith(SpringRunner.class)
 @Transactional
 @SpringBootTest
-public abstract class CachingRepositoryTests {
+public class CachingRepositoryTests {
 
 	@Autowired CachingUserRepository repository;
 	@Autowired CacheManager cacheManager;
 
 	@Test
-	public void cachesValuesReturnedForQueryMethod() {
+	public void checkCachedValue() {
 
 		User dave = new User();
 		dave.setUsername("dmatthews");
@@ -54,5 +55,17 @@ public abstract class CachingRepositoryTests {
 		// Verify entity cached
 		Cache cache = cacheManager.getCache("byUsername");
 		assertThat(cache.get("dmatthews").get()).isEqualTo(dave);
+	}
+
+	@Test
+	public void checkCacheEviction() {
+
+		User dave = new User();
+		dave.setUsername("dmatthews");
+		repository.save(dave);
+
+		// Verify entity evicted on cache
+		Cache cache = cacheManager.getCache("byUsername");
+		assertThat(cache.get("dmatthews")).isEqualTo(null);
 	}
 }

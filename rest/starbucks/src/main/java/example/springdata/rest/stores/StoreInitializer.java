@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Component;
  * Component initializing a hand full of Starbucks stores and persisting them through a {@link StoreRepository}.
  *
  * @author Oliver Gierke
+ * @author Mark Paluch
  */
 @Slf4j
 @Component
@@ -84,7 +86,7 @@ public class StoreInitializer {
 			Address address = new Address(fields.readString("Street Address"), fields.readString("City"),
 					fields.readString("Zip"), location);
 
-			return new Store(fields.readString("Name"), address);
+			return new Store(UUID.randomUUID(), fields.readString("Name"), address);
 		});
 
 		lineMapper.setLineTokenizer(tokenizer);

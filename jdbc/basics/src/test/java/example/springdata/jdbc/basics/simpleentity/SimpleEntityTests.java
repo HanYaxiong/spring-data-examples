@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,6 @@
  */
 package example.springdata.jdbc.basics.simpleentity;
 
-import static java.util.Arrays.*;
 import static org.assertj.core.api.Assertions.*;
 
 import example.springdata.jdbc.basics.Output;
@@ -44,12 +43,10 @@ public class SimpleEntityTests {
 	public void exerciseRepositoryForSimpleEntity() {
 
 		// create some categories
-		Category cars = new Category("Cars", "Anything that has approximately 4 wheels", AgeGroup._3to8);
-
-		Category buildings = new Category("Buildings", null, AgeGroup._12andOlder);
+		Category cars = repository.save(new Category("Cars", "Anything that has approximately 4 wheels.", AgeGroup._3to8));
+		Category buildings = repository.save(new Category("Buildings", null, AgeGroup._12andOlder));
 
 		// save categories
-		repository.saveAll(asList(cars, buildings));
 		Output.list(repository.findAll(), "`Cars` and `Buildings` got saved");
 
 		assertThat(cars.getId()).isNotNull();
@@ -63,5 +60,14 @@ public class SimpleEntityTests {
 		// delete stuff again
 		repository.delete(cars);
 		Output.list(repository.findAll(), "`Cars` is gone.");
+	}
+
+	@Test
+	public void directInsert(){
+
+		Category cars = new Category("Cars", "Anything that has approximately 4 wheels.", AgeGroup._3to8).withId(23L);
+		repository.insert(cars);
+
+		Output.list(repository.findAll(), "`Cars` inserted with id 23L");
 	}
 }

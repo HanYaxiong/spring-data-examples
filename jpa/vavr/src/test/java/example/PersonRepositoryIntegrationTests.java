@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,9 @@ import static org.assertj.core.api.Assertions.*;
 
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
+
+import javax.persistence.NonUniqueResultException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,5 +73,35 @@ public class PersonRepositoryIntegrationTests {
 
 		assertThat(result.contains(carter)).isTrue();
 		assertThat(result.contains(dave)).isFalse();
+	}
+
+	/**
+	 * @see #370
+	 */
+	@Test
+	public void returnsSuccessOfOption() {
+
+		Person dave = people.save(new Person("Dave", "Matthews"));
+		people.save(new Person("Carter", "Beauford"));
+
+		Try<Option<Person>> result = people.findByLastnameContaining("w");
+
+		assertThat(result.isSuccess()).isTrue();
+		assertThat(result.get()).contains(dave);
+	}
+
+	/**
+	 * @see #370
+	 */
+	@Test
+	public void returnsFailureOfOption() {
+
+		people.save(new Person("Dave", "Matthews"));
+		people.save(new Person("Carter", "Beauford"));
+
+		Try<Option<Person>> result = people.findByLastnameContaining("e");
+
+		assertThat(result.isFailure()).isTrue();
+		assertThat(result.getCause()).isInstanceOf(NonUniqueResultException.class);
 	}
 }

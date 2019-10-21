@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,6 +33,7 @@ import org.junit.rules.RuleChain;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,16 +45,16 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.index.GeoIndexed;
 import org.springframework.data.redis.core.index.Indexed;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author Christoph Strobl
  * @author Oliver Gierke
  * @author Mark Paluch
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ApplicationConfiguration.class)
-public class PersonRepositoryTests<K, V> {
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class PersonRepositoryTests {
 
 	/**
 	 * We need to have a Redis server instance available. <br />
@@ -67,7 +68,7 @@ public class PersonRepositoryTests<K, V> {
 	/** {@link Charset} for String conversion **/
 	private static final Charset CHARSET = StandardCharsets.UTF_8;
 
-	@Autowired RedisOperations<K, V> operations;
+	@Autowired RedisOperations<Object, Object> operations;
 	@Autowired PersonRepository repository;
 
 	/*
@@ -142,6 +143,21 @@ public class PersonRepositoryTests<K, V> {
 		List<Person> aryaAndJon = repository.findByFirstnameOrLastname(arya.getFirstname(), jon.getLastname());
 
 		assertThat(aryaAndJon).containsOnly(arya, jon);
+	}
+
+	/**
+	 * Find entities by {@link Example Query by Example}.
+	 */
+	@Test
+	public void findByQueryByExample() {
+
+		flushTestUsers();
+
+		Example<Person> example = Example.of(new Person(null, "stark", null));
+
+		Iterable<Person> starks = repository.findAll(example);
+
+		assertThat(starks).contains(arya, eddard).doesNotContain(jon);
 	}
 
 	/**

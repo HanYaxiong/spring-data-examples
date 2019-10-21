@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,8 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import example.springdata.rest.stores.Store.Address;
+
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
@@ -37,6 +39,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * Integration tests for {@link StoreRepository}.
  *
  * @author Oliver Gierke
+ * @author Mark Paluch
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
@@ -54,12 +57,12 @@ public class StoreRepositoryIntegrationTests {
 	public void findsStoresByLocation() {
 
 		Point location = new Point(-73.995146, 40.740337);
-		Store store = new Store("Foo", new Address("street", "city", "zip", location));
+		Store store = new Store(UUID.randomUUID(), "Foo", new Address("street", "city", "zip", location));
 
 		store = repository.save(store);
 
 		Page<Store> stores = repository.findByAddressLocationNear(location, new Distance(1.0, Metrics.KILOMETERS),
-				new PageRequest(0, 10));
+				PageRequest.of(0, 10));
 
 		assertThat(stores.getContent(), hasSize(1));
 		assertThat(stores.getContent(), hasItem(store));
